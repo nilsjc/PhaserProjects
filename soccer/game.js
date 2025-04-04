@@ -1,5 +1,6 @@
 import StartScene from "./StartScene.js";
 import GameScene from "./GameScene.js";
+import EndScene from "./endscene.js";
 var game;
 window.onload = function(){
 	var config = {
@@ -17,7 +18,8 @@ window.onload = function(){
 		},
 		scene: [
 			StartScene,
-			GameScene
+			GameScene,
+			EndScene
 			]};
 	game = new Phaser.Game(config);
 }

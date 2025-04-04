@@ -13,7 +13,8 @@ class Player2 extends Phaser.Physics.Arcade.Sprite
             up: Phaser.Input.Keyboard.KeyCodes.W,
             down: Phaser.Input.Keyboard.KeyCodes.S,
             left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+            kick: Phaser.Input.Keyboard.KeyCodes.CTRL
         });
 
         this.speed = 200;
@@ -21,6 +22,10 @@ class Player2 extends Phaser.Physics.Arcade.Sprite
         this.standByX = x; // Store the initial x position
         this.standByY = y; // Store the initial y position
         this.userEnabled = true;
+        this.name = "pl2"; // Player name
+        this.kickVelocity = 1.5;
+        this.kickTime = 0;
+
     }
     preUpdate(time, delta)
     {
@@ -55,6 +60,12 @@ class Player2 extends Phaser.Physics.Arcade.Sprite
                 this.moving = 1;
                 velocityY = this.speed;
             }
+            if (this.keys.kick.isDown && this.kickTime < 0.5)
+                {
+                    this.kickVelocity = 4.0;
+                    this.moving = 1;
+                    this.kickTime = 1; // Set kick time to 1 second
+                }
         }else{
             // AI movement logic (example: move towards the center of the screen)
             if (this.x < this.standByX)
@@ -86,6 +97,18 @@ class Player2 extends Phaser.Physics.Arcade.Sprite
                     this.userEnabled = true; // Enable user control again
                 }
         }
+
+        if(this.kickTime > 0.5)
+            {
+                // Decrease kick velocity
+                this.kickVelocity -= delta / 320; // Decrease kick velocity over time
+    
+                // decrease kick time
+                this.kickTime -= delta / 1000; // Decrease kick time based on delta time
+            }else{
+                this.kickVelocity = 1.5; // Reset kick velocity
+                this.kickTime = 0; // Reset kick time
+            }
 
         if(this.moving == 1)
         {

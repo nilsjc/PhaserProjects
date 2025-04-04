@@ -1,19 +1,27 @@
 class Player1 extends Phaser.Physics.Arcade.Sprite
 {
-    constructor(config)
+    constructor(config, playerKeyValue, startX, startY)
     {
-        super(config.scene, config.x, config.y, 'player1key');
+        super(config.scene, config.x, config.y, playerKeyValue);
         config.scene.add.existing(this);
         config.scene.physics.add.existing(this);
         this.anims.play('still');
+
         // Create cursor keys for movement
         this.cursors = config.scene.input.keyboard.createCursorKeys();
+
+        // Add space bar key
+        this.spaceKey = config.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
         this.speed = 200; // Movement speed
         this.moving = 0;
-        this.standByX = config.x; // Store the initial x position
-        this.standByY = config.y; // Store the initial y position
+        this.standByX = startX; // Store the initial x position
+        this.standByY = startY; // Store the initial y position
         this.playerMode = 0;
         this.animLock = 0; // 0 = user control, 1 = AI control
+        this.name = "pl1"; // Player name
+        this.kickVelocity = 1.5;
+        this.kickTime = 0;
     }
     preUpdate(time, delta)
 	{
@@ -51,6 +59,12 @@ class Player1 extends Phaser.Physics.Arcade.Sprite
                     this.moving = 1;
                     velocityY = this.speed;
                     this.animLock = 0;
+                }
+                if (this.spaceKey.isDown && this.kickTime < 0.5)
+                {
+                    this.kickVelocity = 4.0;
+                    this.moving = 1;
+                    this.kickTime = 1; // Set kick time to 1 second
                 }
         }else{
             // AI movement logic (example: move towards the center of the screen)
@@ -91,6 +105,19 @@ class Player1 extends Phaser.Physics.Arcade.Sprite
                 }
             }
         }
+
+        if(this.kickTime > 0.5)
+        {
+            // Decrease kick velocity
+            this.kickVelocity -= delta / 380; // Decrease kick velocity over time
+
+            // decrease kick time
+            this.kickTime -= delta / 1000; // Decrease kick time based on delta time
+        }else{
+            this.kickVelocity = 1.5; // Reset kick velocity
+            this.kickTime = 0; // Reset kick time
+        }
+
 
         
 

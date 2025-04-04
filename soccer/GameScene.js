@@ -4,8 +4,8 @@ import Ball from './ball.js';
 import Publik from './publik.js';
 import Korv from './korv.js';
 import Nisse from './nisse.js';
-import Goal from './goal.js';
 import Wolf from './wolf.js';
+import Audience from './Audience.js';
 class GameScene extends Phaser.Scene
 {
 	constructor()
@@ -18,6 +18,7 @@ class GameScene extends Phaser.Scene
         this.load.spritesheet("player1key", "/graphics/lufsst.png", { frameWidth: 30, frameHeight: 64 });
 		this.load.spritesheet("player2key", "/graphics/player2.png", { frameWidth: 30, frameHeight: 64 });
 		this.load.spritesheet("publikkey", "/graphics/publik2.png", { frameWidth: 30, frameHeight: 60 });
+		this.load.spritesheet("audiencekey", "/graphics/publik1.png", { frameWidth: 104, frameHeight: 40 });
 		this.load.image("ballkey", "/graphics/ball.png");
 		this.load.image("goalkey", "/graphics/goal.png");
 		this.load.image("goalcageleftkey", "/graphics/goalcage.png");
@@ -121,12 +122,28 @@ class GameScene extends Phaser.Scene
 			frameRate: 8,
 			repeat: -1
 			});
+		this.anims.create(
+			{
+				key: 'audiencealive',
+				frames: this.anims.generateFrameNumbers('audiencekey', { start: 0, end: 1 }),
+				frameRate: 8,
+				repeat: -1
+			});
 
 
 		// Create Player1
-		this.pl1 = new Player1({ scene: this, x: 720, y: 180});
-		this.pl1b = new Player1({ scene: this, x: 570, y: 260});
-		this.pl1c = new Player1({ scene: this, x: 720, y: 340});
+		this.pl1 = new Player1({ scene: this, x: 720, y: 180}, 
+			'player1key',
+			720,
+			180);
+		this.pl1b = new Player1({ scene: this, x: 570, y: 260}, 
+			'player1key',
+			570,
+			260);
+		this.pl1c = new Player1({ scene: this, x: 720, y: 340}, 
+			'player1key',
+			720,
+			340);
 
 		// Create Player2
 		this.pl2 = new Player2(this, 230, 180);	
@@ -136,19 +153,14 @@ class GameScene extends Phaser.Scene
 		// Create Ball
         this.ball1 = new Ball(this, 482, 250, 'ballkey');
 
-		// Create Goalcage
-		//this.goalcageLeft = new Goal(this, 0, 260);
-
-		// Create Publik
-		const publikArray = [];
-		let x = 30;
-		for (let i = 0; i < 10; i++) {
-			x += Phaser.Math.Between(50, 110); // 960
-			const y = Phaser.Math.Between(40, 50);
-			const publik = new Publik(this, x, y, 'publikkey');
-			publikArray.push(publik);
-			this.physics.add.collider(this.ball1, publik, (ball, publik) => {
-				publik.handleCollision(ball);
+		// create supporters
+		const audienceArray = [];
+		let sx = 104;
+		for(let i = 0; i < 8; i++){
+			const audience = new Audience(this, sx*i+100, 20, 'audiencekey');
+			audienceArray.push(audience);
+			this.physics.add.collider(this.ball1, audience, (ball, audience) => {
+				audience.handleCollision(ball);
 			});
 		}
 		
@@ -209,22 +221,22 @@ class GameScene extends Phaser.Scene
         // Enable collision between the players and the ball
 		// the ball gets the x and y velocity of the player when they collide
         this.physics.add.collider(this.pl1, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl2, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl1b, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl2b, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl1c, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl2c, this.ball1, (player, ball) => {
-			ball.applyPlayerVelocity(player, 1.1);
+			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		
 		this.add.image(25,238, 'goalcageleftkey');
@@ -237,8 +249,9 @@ class GameScene extends Phaser.Scene
 		this.matchTimerSeconds -= delta / 1000;
 		this.matchTimeText.setText(Math.floor(this.matchTimerSeconds));
 		if (this.matchTimerSeconds <= 0) {
-			this.endMatch();
 			this.matchTimerSeconds = 0;
+			this.endMatch();
+			
 		}
 
 
@@ -246,7 +259,7 @@ class GameScene extends Phaser.Scene
 
 	endMatch()
 	{
-
+		this.scene.start('EndScene');
 	}
 
 	setPlayerScores()
