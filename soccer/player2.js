@@ -1,6 +1,6 @@
 class Player2 extends Phaser.Physics.Arcade.Sprite
 {
-    constructor(scene, x, y, texture) 
+    constructor(scene, x, y, texture, startX, startY, imReady, name) 
     {
         super(scene, x, y, 'player2key');
         scene.add.existing(this);
@@ -19,12 +19,13 @@ class Player2 extends Phaser.Physics.Arcade.Sprite
 
         this.speed = 200;
         this.moving = 0;
-        this.standByX = x; // Store the initial x position
-        this.standByY = y; // Store the initial y position
+        this.standByX = startX; // Store the initial x position
+        this.standByY = startY; // Store the initial y position
         this.userEnabled = true;
-        this.name = "pl2"; // Player name
+        this.name = name; // Player name
         this.kickVelocity = 1.5;
         this.kickTime = 0;
+        this.iAmReady = imReady; // Flag to indicate if the player is ready
 
     }
     preUpdate(time, delta)

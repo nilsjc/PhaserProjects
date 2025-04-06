@@ -1,3 +1,4 @@
+import Player from './player.js';
 import Player1 from './player1.js';
 import Player2 from './player2.js';
 import Ball from './ball.js';
@@ -43,6 +44,7 @@ class GameScene extends Phaser.Scene
 		this.matchTimerSeconds = 90;
 		this.matchTimeText = this.add.text(480, 500, this.matchTimerSeconds, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.goalLock = false;
+		this.readyPlayers = 0;
 
 		
 		this.anims.create(
@@ -130,25 +132,39 @@ class GameScene extends Phaser.Scene
 				repeat: -1
 			});
 
+		let keys1 = this.input.keyboard.addKeys({
+			up: Phaser.Input.Keyboard.KeyCodes.UP,
+			down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+			left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+			right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+			kick: Phaser.Input.Keyboard.KeyCodes.SPACE // Add a key for kicking, e.g., space bar
+		});
 
-		// Create Player1
-		this.pl1 = new Player1({ scene: this, x: 720, y: 180}, 
-			'player1key',
-			720,
-			180);
-		this.pl1b = new Player1({ scene: this, x: 570, y: 260}, 
-			'player1key',
-			570,
-			260);
-		this.pl1c = new Player1({ scene: this, x: 720, y: 340}, 
-			'player1key',
-			720,
-			340);
+		let keys2 = this.input.keyboard.addKeys({
+			up: Phaser.Input.Keyboard.KeyCodes.W,
+			down: Phaser.Input.Keyboard.KeyCodes.S,
+			left: Phaser.Input.Keyboard.KeyCodes.A,
+			right: Phaser.Input.Keyboard.KeyCodes.D,
+			kick: Phaser.Input.Keyboard.KeyCodes.CTRL
+		});
+		let animIds1 = {
+			still: 'still',
+			alive: 'alive'
+		};
+		let animIds2 = {
+			still: 'still2',
+			alive: 'alive2'
+		};
 
-		// Create Player2
-		this.pl2 = new Player2(this, 230, 180);	
-		this.pl2b = new Player2(this, 380, 260);
-		this.pl2c = new Player2(this, 230, 340);
+		// create players 1
+		this.pl1a = new Player(this, 720, 180, 'player1key', 720, 180, this.tellGameImReady, "adam", keys1, animIds1);
+		this.pl1b = new Player(this, 570, 260, 'player1key', 570, 260, this.tellGameImReady, "bertil", keys1, animIds1);
+		this.pl1c = new Player(this, 720, 340, 'player1key', 720, 340, this.tellGameImReady, "carl", keys1, animIds1);
+		
+		// ceate Player2
+		this.pl2a = new Player(this, 230, 180, 'player2key', 230, 180, this.tellGameImReady, "diana", keys2, animIds2);
+		this.pl2b = new Player(this, 380, 260, 'player2key', 380, 260, this.tellGameImReady, "ester", keys2, animIds2);
+		this.pl2c = new Player(this, 230, 340, 'player2key', 230, 340, this.tellGameImReady, "fanny", keys2, animIds2);
 
 		// Create Ball
         this.ball1 = new Ball(this, 482, 250, 'ballkey');
@@ -183,10 +199,10 @@ class GameScene extends Phaser.Scene
 			wolf.handleCollision(ball);
 			ball.applyPlayerVelocity(wolf, 2.1);
 		});
-		this.physics.add.collider(this.pl1, this.wolf, (player, wolf) => {
+		this.physics.add.collider(this.pl1a, this.wolf, (player, wolf) => {
 			player.killPlayer();
 		});
-		this.physics.add.collider(this.pl2, this.wolf, (player, wolf) => {
+		this.physics.add.collider(this.pl2a, this.wolf, (player, wolf) => {
 			player.killPlayer();
 		});
 		
@@ -220,10 +236,10 @@ class GameScene extends Phaser.Scene
 
         // Enable collision between the players and the ball
 		// the ball gets the x and y velocity of the player when they collide
-        this.physics.add.collider(this.pl1, this.ball1, (player, ball) => {
+        this.physics.add.collider(this.pl1a, this.ball1, (player, ball) => {
 			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
-		this.physics.add.collider(this.pl2, this.ball1, (player, ball) => {
+		this.physics.add.collider(this.pl2a, this.ball1, (player, ball) => {
 			ball.applyPlayerVelocity(player, player.kickVelocity);
 		});
 		this.physics.add.collider(this.pl1b, this.ball1, (player, ball) => {
@@ -268,8 +284,8 @@ class GameScene extends Phaser.Scene
 		{
 			this.playerText1.setText(this.player1name + " " + this.player1score);
 			this.playerText2.setText(this.player2name + " " + this.player2score);
-			this.pl1.handleGoal();
-			this.pl2.handleGoal();
+			this.pl1a.handleGoal();
+			this.pl2a.handleGoal();
 			this.pl1b.handleGoal();
 			this.pl2b.handleGoal();
 			this.pl1c.handleGoal();
@@ -315,5 +331,15 @@ class GameScene extends Phaser.Scene
 			callbackScope: this
 		});
 	}
+	tellGameImReady(object)
+    {
+        this.readyPlayers += 1;
+		if(this.readyPlayers == 6)
+		{
+			this.ball1.resetBall();
+			this.goalLock = false;
+			this.readyPlayers = 0;
+		}
+    }
 }
 export default GameScene;
