@@ -1,0 +1,15 @@
+TODOS:
+- menu screen before play for setting up your team and so on...
+- countdown to start
+- make the audience vulnerable to hard kicks
+- different player graphics
+- end screen celebrating the winning team
+- visualize team and score better
+
+QUESTIONS:
+- should the wolf be able to interacting with the players?
+- should the player be able to move outside the screen (as implemented)?
+- should goalkeepers be implemented?
+
+BUGS:
+- score on the right side out of control 

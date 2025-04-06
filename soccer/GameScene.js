@@ -1,8 +1,5 @@
 import Player from './player.js';
-import Player1 from './player1.js';
-import Player2 from './player2.js';
 import Ball from './ball.js';
-import Publik from './publik.js';
 import Korv from './korv.js';
 import Nisse from './nisse.js';
 import Wolf from './wolf.js';
@@ -18,7 +15,6 @@ class GameScene extends Phaser.Scene
 		// Load the player1 image
         this.load.spritesheet("player1key", "/graphics/lufsst.png", { frameWidth: 30, frameHeight: 64 });
 		this.load.spritesheet("player2key", "/graphics/player2.png", { frameWidth: 30, frameHeight: 64 });
-		this.load.spritesheet("publikkey", "/graphics/publik2.png", { frameWidth: 30, frameHeight: 60 });
 		this.load.spritesheet("audiencekey", "/graphics/publik1.png", { frameWidth: 104, frameHeight: 40 });
 		this.load.image("ballkey", "/graphics/ball.png");
 		this.load.image("goalkey", "/graphics/goal.png");
@@ -74,20 +70,6 @@ class GameScene extends Phaser.Scene
 			frames: this.anims.generateFrameNumbers('player2key', { start: 0, end: 1 }),
 			frameRate: 4,
 			repeat: -1
-			});
-		this.anims.create(
-			{
-			key: 'publikalive',
-			frames: this.anims.generateFrameNumbers('publikkey', { start: 0, end: 5 }),
-			frameRate: 4,
-			repeat: -1
-			});
-		this.anims.create(
-			{
-			key: 'publikdead',
-			frames: this.anims.generateFrameNumbers('publikkey', { start: 6, end: 7 }),
-			frameRate: 8,
-			repeat: 0
 			});
 		this.anims.create(
 			{
@@ -161,7 +143,7 @@ class GameScene extends Phaser.Scene
 		this.pl1b = new Player(this, 570, 260, 'player1key', 570, 260, this.tellGameImReady, "bertil", keys1, animIds1);
 		this.pl1c = new Player(this, 720, 340, 'player1key', 720, 340, this.tellGameImReady, "carl", keys1, animIds1);
 		
-		// ceate Player2
+		// create Player2
 		this.pl2a = new Player(this, 230, 180, 'player2key', 230, 180, this.tellGameImReady, "diana", keys2, animIds2);
 		this.pl2b = new Player(this, 380, 260, 'player2key', 380, 260, this.tellGameImReady, "ester", keys2, animIds2);
 		this.pl2c = new Player(this, 230, 340, 'player2key', 230, 340, this.tellGameImReady, "fanny", keys2, animIds2);
@@ -199,12 +181,12 @@ class GameScene extends Phaser.Scene
 			wolf.handleCollision(ball);
 			ball.applyPlayerVelocity(wolf, 2.1);
 		});
-		this.physics.add.collider(this.pl1a, this.wolf, (player, wolf) => {
-			player.killPlayer();
-		});
-		this.physics.add.collider(this.pl2a, this.wolf, (player, wolf) => {
-			player.killPlayer();
-		});
+		// this.physics.add.collider(this.pl1a, this.wolf, (player, wolf) => {
+		// 	player.killPlayer();
+		// });
+		// this.physics.add.collider(this.pl2a, this.wolf, (player, wolf) => {
+		// 	player.killPlayer();
+		// });
 		
 
 		// Create the goal area
