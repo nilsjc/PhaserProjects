@@ -13,3 +13,4 @@ QUESTIONS:
 
 BUGS:
 - score on the right side out of control 
+- goal possible from the sides

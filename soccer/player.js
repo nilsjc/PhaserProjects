@@ -71,13 +71,13 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     velocityY = this.speed;
                     this.animLock = 0;
                 }
-                if (this.keys.kick.isDown && this.kickTime < 0.5)
+                if (this.keys.kick.isDown && this.kickTime < 5)
                 {
-                    this.kickVelocity = 4.0;
+                    this.kickVelocity = 3.9;
                     this.moving = 1;
-                    this.kickTime = 1; // Set kick time to 1 second
+                    this.kickTime = 10; // Set kick time to 1 second
                 }
-        }else{
+        }else if(this.playerMode == 1 || this.playerMode == 2){
             // AI movement logic (example: move towards the center of the screen)
             if (this.x < this.standByX)
             {
@@ -113,41 +113,32 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     this.animLock = 0;
                 }else
                 {
-                    // ending of game mode
+                    this.playerMode = 3;
+                    this.moving = 0;
                 }
             }
         }
 
-        if(this.kickTime > 0.5)
+        if(this.kickTime > 5)
         {
             // Decrease kick velocity
-            this.kickVelocity -= delta / 380; // Decrease kick velocity over time
+            this.kickVelocity -= (delta / 100)/10.0; // Decrease kick velocity over time
 
             // decrease kick time
-            this.kickTime -= delta / 1000; // Decrease kick time based on delta time
+            this.kickTime -= delta / 100; // Decrease kick time based on delta time
         }else{
             this.kickVelocity = 1.5; // Reset kick velocity
             this.kickTime = 0; // Reset kick time
         }
 
 
-        
-
         if(this.moving == 1)
         {
-            if(this.animLock == 0)
-            {
-                this.anims.play(this.animIds.alive, true);
-                this.animLock = 1; // Lock the animation to prevent spamming
-            }
+            this.anims.play(this.animIds.alive, true);
         }
         else
         {
-            if(this.animLock == 0)
-            {
-                this.anims.play(this.animIds.still, true);
-                this.animLock = 1; // Lock the animation to prevent spamming
-            }
+            this.anims.play(this.animIds.still, true);  
         }
 
         this.setVelocity(velocityX, velocityY); // Use setVelocity for physics-based movement
@@ -169,6 +160,14 @@ class Player extends Phaser.Physics.Arcade.Sprite
     enableUserControl()
     {
         this.playerMode = 0; // Enable user control
+    }
+    standup(x, y)
+    {
+         // disable user control
+        this.standByX = x; // Store the initial x position
+        this.standByY = y; // Store the initial y position
+        this.playerMode = 2; // Set to AI control
+        this.moving = 0;
     }
     killPlayer()
     {

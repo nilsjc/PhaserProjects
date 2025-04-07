@@ -4,6 +4,7 @@ import Korv from './korv.js';
 import Nisse from './nisse.js';
 import Wolf from './wolf.js';
 import Audience from './Audience.js';
+import MiniFluff from './minifluff.js';
 class GameScene extends Phaser.Scene
 {
 	constructor()
@@ -23,7 +24,7 @@ class GameScene extends Phaser.Scene
 		this.load.image('background', 'graphics/plane.png');
 		this.load.spritesheet("nissekey", "/graphics/nisse.png", { frameWidth: 60, frameHeight: 60 });
 		this.load.spritesheet("wolfkey", "/graphics/varg.png", { frameWidth: 40, frameHeight: 64 });
-		
+		this.load.spritesheet("minifluffkey", "/graphics/minifluff.png", { frameWidth: 21, frameHeight: 48 });
 	}
 	create()
 	{
@@ -37,9 +38,10 @@ class GameScene extends Phaser.Scene
 		this.playerText2.setText(this.player2name);
 		this.player1score = 0;
 		this.player2score = 0;
-		this.matchTimerSeconds = 90;
+		this.matchTimerSeconds = 10;
 		this.matchTimeText = this.add.text(480, 500, this.matchTimerSeconds, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.goalLock = false;
+		this.endMatchLock = false;
 		this.readyPlayers = 0;
 
 		
@@ -113,6 +115,27 @@ class GameScene extends Phaser.Scene
 				frameRate: 8,
 				repeat: -1
 			});
+		this.anims.create(
+			{
+				key: 'minifluffalive',
+				frames: this.anims.generateFrameNumbers('minifluffkey', { start: 0, end: 1 }),
+				frameRate: 8,
+				repeat: -1
+			});
+		this.anims.create(
+			{
+				key: 'minifluffhit',
+				frames: this.anims.generateFrameNumbers('minifluffkey', { start: 2, end: 2 }),
+				frameRate: 8,
+				repeat: 0
+			});
+		this.anims.create(
+			{
+				key: 'minifluffdead',
+				frames: this.anims.generateFrameNumbers('minifluffkey', { start: 3, end: 3 }),
+				frameRate: 8,
+				repeat: 0
+			});
 
 		let keys1 = this.input.keyboard.addKeys({
 			up: Phaser.Input.Keyboard.KeyCodes.UP,
@@ -139,12 +162,12 @@ class GameScene extends Phaser.Scene
 		};
 
 		// create players 1
-		this.pl1a = new Player(this, 720, 180, 'player1key', 720, 180, this.tellGameImReady, "adam", keys1, animIds1);
+		this.pl1a = new Player(this, 660, 180, 'player1key', 660, 180, this.tellGameImReady, "adam", keys1, animIds1);
 		this.pl1b = new Player(this, 570, 260, 'player1key', 570, 260, this.tellGameImReady, "bertil", keys1, animIds1);
 		this.pl1c = new Player(this, 720, 340, 'player1key', 720, 340, this.tellGameImReady, "carl", keys1, animIds1);
 		
 		// create Player2
-		this.pl2a = new Player(this, 230, 180, 'player2key', 230, 180, this.tellGameImReady, "diana", keys2, animIds2);
+		this.pl2a = new Player(this, 290, 180, 'player2key', 290, 180, this.tellGameImReady, "diana", keys2, animIds2);
 		this.pl2b = new Player(this, 380, 260, 'player2key', 380, 260, this.tellGameImReady, "ester", keys2, animIds2);
 		this.pl2c = new Player(this, 230, 340, 'player2key', 230, 340, this.tellGameImReady, "fanny", keys2, animIds2);
 
@@ -155,7 +178,7 @@ class GameScene extends Phaser.Scene
 		const audienceArray = [];
 		let sx = 104;
 		for(let i = 0; i < 8; i++){
-			const audience = new Audience(this, sx*i+100, 20, 'audiencekey');
+			const audience = new Audience(this, sx*i+100, 40, 'audiencekey');
 			audienceArray.push(audience);
 			this.physics.add.collider(this.ball1, audience, (ball, audience) => {
 				audience.handleCollision(ball);
@@ -181,6 +204,14 @@ class GameScene extends Phaser.Scene
 			wolf.handleCollision(ball);
 			ball.applyPlayerVelocity(wolf, 2.1);
 		});
+
+		// Create MiniFluff
+		this.minifluff = new MiniFluff(this, 0, 45, 'minifluffkey');
+
+		this.physics.add.collider(this.ball1, this.minifluff, (ball, minifluff) => {
+			minifluff.handleCollision(ball);
+			ball.applyPlayerVelocity(minifluff, -1.0);
+		});
 		// this.physics.add.collider(this.pl1a, this.wolf, (player, wolf) => {
 		// 	player.killPlayer();
 		// });
@@ -199,13 +230,11 @@ class GameScene extends Phaser.Scene
 
 		// create a zone for the goal area
 		this.physics.add.overlap(this.ball1, this.goalLeft, (ball, goal) => {
-			this.player2score += 1;
-			this.setPlayerScores();
+			this.setPlayerScores(2);
 			this.handleBallAfterGoal();
 		});
 		this.physics.add.overlap(this.ball1, this.goalRight, (ball, goal) => {	
-			this.player1score += 1;
-			this.setPlayerScores();
+			this.setPlayerScores(1);
 			this.handleBallAfterGoal();
 		});
 		
@@ -257,13 +286,36 @@ class GameScene extends Phaser.Scene
 
 	endMatch()
 	{
-		this.scene.start('EndScene');
+		if(this.endMatchLock == false)
+		{
+			// let players stand up
+			this.pl1a.standup(530,200);
+			this.pl1b.standup(560,200);
+			this.pl1c.standup(590,200);
+			this.pl2a.standup(370,200);
+			this.pl2b.standup(400,200);
+			this.pl2c.standup(430,200);
+			this.goalLock = true;
+			// prepare and send game to next screen
+			const endArray = [];
+			endArray.push(this.player1score);
+			endArray.push(this.player2score);
+			//this.scene.start('EndScene', endArray);
+			this.endMatchLock = true;
+		}
+		
 	}
 
-	setPlayerScores()
+	setPlayerScores(team)
 	{
 		if(this.goalLock == false)
 		{
+			if(team==1)
+			{
+				this.player1score +=1;
+			}else{
+				this.player2score +=1;
+			}
 			this.playerText1.setText(this.player1name + " " + this.player1score);
 			this.playerText2.setText(this.player2name + " " + this.player2score);
 			this.pl1a.handleGoal();
@@ -302,7 +354,6 @@ class GameScene extends Phaser.Scene
 	}
 	handleBallAfterGoal()
 	{
-		this.ball1.x = -100;
 		this.time.addEvent({
 			delay: 2200,
 			callback: () => {
