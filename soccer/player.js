@@ -10,10 +10,7 @@ class Player extends Phaser.Physics.Arcade.Sprite
     //
     // this.keys = scene.input.keyboard.addKeys({
     //     up: Phaser.Input.Keyboard.KeyCodes.W,
-    //     down: Phaser.Input.Keyboard.KeyCodes.S,
-    //     left: Phaser.Input.Keyboard.KeyCodes.A,
-    //     right: Phaser.Input.Keyboard.KeyCodes.D,
-    //     kick: Phaser.Input.Keyboard.KeyCodes.CTRL
+    //     ...
     // });
     constructor(scene, x, y, playerKeyValue, standbyX, standbyY, imReady, name, keys, animIds)
     {
@@ -27,8 +24,7 @@ class Player extends Phaser.Physics.Arcade.Sprite
         this.moving = 0;
         this.standByX = standbyX; // Store the initial x position
         this.standByY = standbyY; // Store the initial y position
-        this.playerMode = 0;
-        this.animLock = 0; // 0 = user control, 1 = AI control
+        this.playerMode = 4;
         this.kickVelocity = 1.5;
         this.kickTime = 0;
         this.iAmReady = imReady; // Flag to indicate if the player is ready
@@ -50,26 +46,22 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     this.moving = 1;
                     velocityX = -this.speed;
                     this.setFlipX(true); // Flip the sprite to face left
-                    this.animLock = 0;
         
                 } else if (this.keys.right.isDown)
                 {
                     this.moving = 1;
                     velocityX = this.speed;
                     this.setFlipX(false); // Flip the sprite to face right
-                    this.animLock = 0;
                 }
         
                 if (this.keys.up.isDown) 
                 {
                     this.moving = 1;
                     velocityY = -this.speed;
-                    this.animLock = 0;
                 } else if (this.keys.down.isDown) 
                 {
                     this.moving = 1;
                     velocityY = this.speed;
-                    this.animLock = 0;
                 }
                 if (this.keys.kick.isDown && this.kickTime < 5)
                 {
@@ -77,7 +69,7 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     this.moving = 1;
                     this.kickTime = 10; // Set kick time to 1 second
                 }
-        }else if(this.playerMode == 1 || this.playerMode == 2){
+        }else if(this.playerMode == 1 || this.playerMode == 2 || this.playerMode == 4){
             // AI movement logic (example: move towards the center of the screen)
             if (this.x < this.standByX)
             {
@@ -107,14 +99,18 @@ class Player extends Phaser.Physics.Arcade.Sprite
                 if(this.playerMode == 1)
                 {
                     // goal mode
-                    this.iAmReady(this.name);
+                    this.iAmReady(this.playerMode);
                     this.resetPlayer(); // Reset the player position
                     this.playerMode = 0; // Enable user control again
-                    this.animLock = 0;
-                }else
+                }else if(this.playerMode == 2)
                 {
                     this.playerMode = 3;
                     this.moving = 0;
+                }else if(this.playerMode == 4)
+                {
+                    console.log("Player is ready to play!");
+                    this.iAmReady(this.playerMode);
+                    this.playerMode = 10; // limbo mode
                 }
             }
         }
@@ -155,6 +151,13 @@ class Player extends Phaser.Physics.Arcade.Sprite
         if(this.playerMode == 0)
         {
             this.playerMode = 1; // Set to goal mode
+        }
+    }
+    handleStart()
+    {
+        if(this.playerMode == 0)
+        {
+            this.playerMode = 4; // Set to start mode
         }
     }
     enableUserControl()

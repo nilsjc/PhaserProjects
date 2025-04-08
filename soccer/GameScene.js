@@ -40,9 +40,12 @@ class GameScene extends Phaser.Scene
 		this.player2score = 0;
 		this.matchTimerSeconds = 90;
 		this.matchTimeText = this.add.text(480, 500, this.matchTimerSeconds, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
+		this.matchCountdown = 3;
+		this.matchCountdownText = this.add.text(480, 250, '3', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.goalLock = false;
 		this.endMatchLock = false;
 		this.readyPlayers = 0;
+		this.gameMode = 5; // 0 = goal mode, 1 = start mode, 2 = end mod, 5 = limbo mode
 
 		
 		this.anims.create(
@@ -162,14 +165,14 @@ class GameScene extends Phaser.Scene
 		};
 
 		// create players 1
-		this.pl1a = new Player(this, 660, 180, 'player1key', 660, 180, this.tellGameImReady, "adam", keys1, animIds1);
-		this.pl1b = new Player(this, 570, 260, 'player1key', 570, 260, this.tellGameImReady, "bertil", keys1, animIds1);
-		this.pl1c = new Player(this, 720, 340, 'player1key', 720, 340, this.tellGameImReady, "carl", keys1, animIds1);
+		this.pl1a = new Player(this, 550, 590, 'player1key', 660, 180, this.tellGameImReady.bind(this), "adam", keys1, animIds1);
+		this.pl1b = new Player(this, 550, 580, 'player1key', 570, 260, this.tellGameImReady.bind(this), "bertil", keys1, animIds1);
+		this.pl1c = new Player(this, 550, 570, 'player1key', 720, 340, this.tellGameImReady.bind(this), "carl", keys1, animIds1);
 		
-		// create Player2
-		this.pl2a = new Player(this, 290, 180, 'player2key', 290, 180, this.tellGameImReady, "diana", keys2, animIds2);
-		this.pl2b = new Player(this, 380, 260, 'player2key', 380, 260, this.tellGameImReady, "ester", keys2, animIds2);
-		this.pl2c = new Player(this, 230, 340, 'player2key', 230, 340, this.tellGameImReady, "fanny", keys2, animIds2);
+		// create Player 2
+		this.pl2a = new Player(this, 300, 590, 'player2key', 290, 180, this.tellGameImReady.bind(this), "diana", keys2, animIds2);
+		this.pl2b = new Player(this, 300, 580, 'player2key', 380, 260, this.tellGameImReady.bind(this), "ester", keys2, animIds2);
+		this.pl2c = new Player(this, 300, 570, 'player2key', 230, 340, this.tellGameImReady.bind(this), "fanny", keys2, animIds2);
 
 		// Create Ball
         this.ball1 = new Ball(this, 482, 250, 'ballkey');
@@ -273,12 +276,35 @@ class GameScene extends Phaser.Scene
 	update(time, delta) {
 
         // countdown timer
-		this.matchTimerSeconds -= delta / 1000;
-		this.matchTimeText.setText(Math.floor(this.matchTimerSeconds));
-		if (this.matchTimerSeconds <= 0) {
-			this.matchTimerSeconds = 0;
-			this.endMatch();
-			
+		if(this.gameMode == 0) // match mode
+		{
+			this.matchTimerSeconds -= delta / 1000;
+			this.matchTimeText.setText(Math.floor(this.matchTimerSeconds));
+			if (this.matchTimerSeconds <= 0) {
+				this.matchTimerSeconds = 0;
+				this.endMatch();
+				
+			}
+		}
+		else if(this.gameMode == 1) // countdown to start
+		{
+			this.matchCountdown -= delta / 1000;
+			this.matchCountdownText.setText(Math.floor(this.matchCountdown));
+			if (this.matchCountdown <= 0)
+			{
+				this.gameMode = 0;
+				this.matchCountdown = 3;	
+				this.matchCountdownText.setText("");
+				this.ball1.resetBall();
+				this.goalLock = false;
+				this.pl1a.enableUserControl();
+				this.pl1b.enableUserControl();
+				this.pl1c.enableUserControl();
+				this.pl2a.enableUserControl();
+				this.pl2b.enableUserControl();
+				this.pl2c.enableUserControl();
+				console.log("game mode 0");
+			}
 		}
 
 
@@ -364,14 +390,27 @@ class GameScene extends Phaser.Scene
 			callbackScope: this
 		});
 	}
-	tellGameImReady(object)
+	
+	tellGameImReady(mode)
     {
         this.readyPlayers += 1;
+		console.log("ready players: " + this.readyPlayers.toString());
 		if(this.readyPlayers == 6)
 		{
-			this.ball1.resetBall();
-			this.goalLock = false;
-			this.readyPlayers = 0;
+			if(mode==1) // goal mode
+			{
+				this.ball1.resetBall();
+				this.goalLock = false;
+				this.readyPlayers = 0;
+			}
+			else if(mode==4) // start mode
+			{
+				// countdown to start
+				this.gameMode = 1;
+				console.log("starting the game mode");
+				this.readyPlayers = 0;
+			}
+
 		}
     }
 }
