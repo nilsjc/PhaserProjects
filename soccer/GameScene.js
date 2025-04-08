@@ -38,7 +38,7 @@ class GameScene extends Phaser.Scene
 		this.playerText2.setText(this.player2name);
 		this.player1score = 0;
 		this.player2score = 0;
-		this.matchTimerSeconds = 10;
+		this.matchTimerSeconds = 90;
 		this.matchTimeText = this.add.text(480, 500, this.matchTimerSeconds, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.goalLock = false;
 		this.endMatchLock = false;

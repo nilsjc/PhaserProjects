@@ -7,7 +7,7 @@ class Minifluff extends Phaser.Physics.Arcade.Sprite
         scene.physics.add.existing(this); // Enable physics for the minifluff
         this.setFrame(0); // Set the initial frame for the minifluff
         // Play the minifluff animation
-        this.anims.play('minifluffalive');
+        this.anims.play('minifluffalive', true);
         this.speedX = 50;
         this.speedY = 0;
         this.hit = 0;
@@ -26,7 +26,7 @@ class Minifluff extends Phaser.Physics.Arcade.Sprite
             this.hit -= delta / 100; // Decrease hit points
         }
         else{
-            this.anims.play('minifluffalive');
+            this.anims.play('minifluffalive', true);
             this.setVelocity(this.speedX, this.speedY);
         }
     }
