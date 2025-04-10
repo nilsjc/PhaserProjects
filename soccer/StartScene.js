@@ -15,53 +15,50 @@ class StartScene extends Phaser.Scene
 	create()
 	{
 		this.add.image(0,0, 'startpage').setOrigin(0, 0);
-		this.text = this.add.text(120,100);
-		this.text.setText("Tryck SPACE för att starta");
+		this.text = this.add.text(200,10, "Tryck SPACE för att starta",{ fontSize: '32px', fill: '#000' });
 		this.cursor = this.input.keyboard.createCursorKeys();
-		//this.add.sprite(10, 200, "logo");
-		//this.logo = this.physics.add.image(700, 200, 'logo');
 		this.logo = this.physics.add.sprite(700, 200, 'logo');
 		this.logo.setVelocity(-80, 0);
 
-		const element = this.add.dom(0, 0).createFromCache('nameform');
+		// const element = this.add.dom(0, 0).createFromCache('nameform');
 
-		const text2 = this.add.text(300, 10, 'Spelare 1 namn:', { color: 'white', fontSize: '20px '});
+		// const text2 = this.add.text(300, 10, 'Spelare 1 namn:', { color: 'white', fontSize: '20px '});
 
-        element.addListener('click');
+        // element.addListener('click');
 
-        element.on('click', function (event)
-        {
+        // element.on('click', function (event)
+        // {
 
-            if (event.target.name === 'playButton')
-            {
-                const inputText = this.getChildByName('nameField');
+        //     if (event.target.name === 'playButton')
+        //     {
+        //         const inputText = this.getChildByName('nameField');
 
-                //  Have they entered anything?
-                if (inputText.value !== '')
-                {
-                    //  Turn off the click events
-                    this.removeListener('click');
+        //         //  Have they entered anything?
+        //         if (inputText.value !== '')
+        //         {
+        //             //  Turn off the click events
+        //             this.removeListener('click');
 
-                    //  Hide the login element
-                    this.setVisible(false);
+        //             //  Hide the login element
+        //             this.setVisible(false);
 
-                    //  Populate the text with whatever they typed in
-                    text2.setText(`Welcome ${inputText.value}`);
-                }
-                else
-                {
-                    //  Flash the prompt
-                    this.scene.tweens.add({
-                        targets: text,
-                        alpha: 0.2,
-                        duration: 250,
-                        ease: 'Power3',
-                        yoyo: true
-                    });
-                }
-            }
+        //             //  Populate the text with whatever they typed in
+        //             text2.setText(`Welcome ${inputText.value}`);
+        //         }
+        //         else
+        //         {
+        //             //  Flash the prompt
+        //             this.scene.tweens.add({
+        //                 targets: text,
+        //                 alpha: 0.2,
+        //                 duration: 250,
+        //                 ease: 'Power3',
+        //                 yoyo: true
+        //             });
+        //         }
+        //     }
 
-        });
+        // });
 		
 			//this.wrapRect = new Phaser.Geom.Rectangle(0, 0, 480, 600);
 
@@ -74,11 +71,11 @@ class StartScene extends Phaser.Scene
 		//Phaser.Actions.WrapInRectangle(this.logo, this.wrapRect, 100);
 		if (this.cursor.space.isDown)
 		{
-			this.scene.start('GameScene');
+			this.scene.start('Menu');
 		}
 		if(this.logo.x<-210)
 		{
-			this.logo.x = 740;
+			this.logo.x = 965;
 		}
 	}
 }

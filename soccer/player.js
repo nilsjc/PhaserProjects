@@ -70,24 +70,29 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     this.kickTime = 10; // Set kick time to 1 second
                 }
         }else if(this.playerMode == 1 || this.playerMode == 2 || this.playerMode == 4){
+            
             // AI movement logic (example: move towards the center of the screen)
-            if (this.x < this.standByX)
+            if (this.x < this.standByX-2)
             {
                 this.moving = 1;
                 velocityX = this.speed;
                 this.setFlipX(false); // Flip the sprite to face right
-            }else{
+            }else if (this.x > this.standByX+2){
                 this.moving = 1;
                 velocityX = -this.speed;
                 this.setFlipX(true); // Flip the sprite to face left
+            }else{
+
             }
-            if(this.y < this.standByY)
+            if(this.y < this.standByY+1)
             {
                 this.moving = 1;
                 velocityY = this.speed;
-            }else{
+            }else if(this.y > this.standByY-1){
                 this.moving = 1;
                 velocityY = -this.speed;
+            }else{
+
             }
 
             // calculate hypotenuse
@@ -108,7 +113,6 @@ class Player extends Phaser.Physics.Arcade.Sprite
                     this.moving = 0;
                 }else if(this.playerMode == 4)
                 {
-                    console.log("Player is ready to play!");
                     this.iAmReady(this.playerMode);
                     this.playerMode = 10; // limbo mode
                 }
@@ -153,13 +157,14 @@ class Player extends Phaser.Physics.Arcade.Sprite
             this.playerMode = 1; // Set to goal mode
         }
     }
-    handleStart()
-    {
-        if(this.playerMode == 0)
-        {
-            this.playerMode = 4; // Set to start mode
-        }
-    }
+    // handleStart()
+    // {
+    //     if(this.playerMode == 0)
+    //     {
+    //         console.log("start mode");
+    //         this.playerMode = 4; // Set to start mode
+    //     }
+    // }
     enableUserControl()
     {
         this.playerMode = 0; // Enable user control

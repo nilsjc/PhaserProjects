@@ -26,11 +26,11 @@ class GameScene extends Phaser.Scene
 		this.load.spritesheet("wolfkey", "/graphics/varg.png", { frameWidth: 40, frameHeight: 64 });
 		this.load.spritesheet("minifluffkey", "/graphics/minifluff.png", { frameWidth: 21, frameHeight: 48 });
 	}
-	create()
+	create(nameArr)
 	{
 		this.add.image(0,0, 'background').setOrigin(0, 0);
-		this.player1name = "Lufsisarna";
-		this.player2name = "Bumbibjörnarna";
+		this.player1name = nameArr[0];
+		this.player2name = nameArr[1];
 		let rightAlign = 940 - (this.player2name.length*10);
 		this.playerText1 = this.add.text(0,0);
 		this.playerText1.setText(this.player1name);
@@ -38,10 +38,10 @@ class GameScene extends Phaser.Scene
 		this.playerText2.setText(this.player2name);
 		this.player1score = 0;
 		this.player2score = 0;
-		this.matchTimerSeconds = 90;
+		this.matchTimerSeconds = 1;
 		this.matchTimeText = this.add.text(480, 500, this.matchTimerSeconds, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.matchCountdown = 3;
-		this.matchCountdownText = this.add.text(480, 250, '3', { fontSize: '32px', fill: '#fff' }).setOrigin(0.5, 0.5);
+		this.matchCountdownText = this.add.text(480, 150, '3', { fontSize: '128px', fill: '#fff' }).setOrigin(0.5, 0.5);
 		this.goalLock = false;
 		this.endMatchLock = false;
 		this.readyPlayers = 0;
@@ -153,7 +153,7 @@ class GameScene extends Phaser.Scene
 			down: Phaser.Input.Keyboard.KeyCodes.S,
 			left: Phaser.Input.Keyboard.KeyCodes.A,
 			right: Phaser.Input.Keyboard.KeyCodes.D,
-			kick: Phaser.Input.Keyboard.KeyCodes.CTRL
+			kick: Phaser.Input.Keyboard.KeyCodes.SHIFT
 		});
 		let animIds1 = {
 			still: 'still',
@@ -209,7 +209,7 @@ class GameScene extends Phaser.Scene
 		});
 
 		// Create MiniFluff
-		this.minifluff = new MiniFluff(this, 0, 45, 'minifluffkey');
+		this.minifluff = new MiniFluff(this, 0, 85, 'minifluffkey');
 
 		this.physics.add.collider(this.ball1, this.minifluff, (ball, minifluff) => {
 			minifluff.handleCollision(ball);
@@ -273,7 +273,12 @@ class GameScene extends Phaser.Scene
 		this.add.image(930,238, 'goalcageleftkey').setFlipX(true);
 
 		}
-	update(time, delta) {
+
+
+	// GAME LOOP
+
+	update(time, delta) 
+	{
 
         // countdown timer
 		if(this.gameMode == 0) // match mode
@@ -303,12 +308,29 @@ class GameScene extends Phaser.Scene
 				this.pl2a.enableUserControl();
 				this.pl2b.enableUserControl();
 				this.pl2c.enableUserControl();
-				console.log("game mode 0");
 			}
+		}
+		else if(this.gameMode == 4) // end mode
+		{
+			this.matchCountdown -= delta / 1000;
+			if(this.matchCountdown < 1)
+			{
+				// prepare and send game to next screenS
+				const endArray = [];
+				endArray.push(this.player1score);
+				endArray.push(this.player2score);
+				endArray.push(this.player1name);
+				endArray.push(this.player2name);
+				console.log(endArray);
+				this.scene.start('EndScene', endArray);
+			}
+
 		}
 
 
     }
+
+	// GAME LOOP stops here
 
 	endMatch()
 	{
@@ -322,12 +344,9 @@ class GameScene extends Phaser.Scene
 			this.pl2b.standup(400,200);
 			this.pl2c.standup(430,200);
 			this.goalLock = true;
-			// prepare and send game to next screen
-			const endArray = [];
-			endArray.push(this.player1score);
-			endArray.push(this.player2score);
-			//this.scene.start('EndScene', endArray);
 			this.endMatchLock = true;
+			this.gameMode = 4;
+			this.matchCountdown = 4;
 		}
 		
 	}
@@ -394,7 +413,6 @@ class GameScene extends Phaser.Scene
 	tellGameImReady(mode)
     {
         this.readyPlayers += 1;
-		console.log("ready players: " + this.readyPlayers.toString());
 		if(this.readyPlayers == 6)
 		{
 			if(mode==1) // goal mode
@@ -407,7 +425,6 @@ class GameScene extends Phaser.Scene
 			{
 				// countdown to start
 				this.gameMode = 1;
-				console.log("starting the game mode");
 				this.readyPlayers = 0;
 			}
 
